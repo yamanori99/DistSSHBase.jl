@@ -48,6 +48,24 @@ jobs:
           delete-old-caches: false
       - uses: ./.github/actions/pkg-test
 
+  test-registry-tree:
+    name: Pkg.test - registry tree - ubuntu-latest
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/julia-slot
+        with:
+          version: "1.14-nightly"
+      - uses: julia-actions/cache@v3
+        with:
+          cache-scratchspaces: false
+          delete-old-caches: false
+      - uses: ./.github/actions/registry-tree-test
+
   jetls:
     name: JETLS - 1.13 - ubuntu-latest
     runs-on: ubuntu-latest
@@ -139,6 +157,7 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           title='CI weekly failed'
+          gh label create alert --force --description "Auto: scheduled check failed (E2E weekly, CI weekly, Runic)" --color "ff4d00" --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
           existing="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --label alert --search "in:title $title" --json number --jq '.[0].number // empty')"
           if [ "$FAILED" = "true" ]; then
             body="Latest run: $RUN_URL
