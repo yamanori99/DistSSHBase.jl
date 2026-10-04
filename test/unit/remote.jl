@@ -71,22 +71,26 @@ using Test
         @test occursin(word, sh)
     end
 
-    @test DistSSHBase.remote_path_for_ssh_collect(
+    @test DistSSHBase.remote_layout_path(
         "/Users/z/MyRepo/data/out",
         "/Users/z/MyRepo",
     ) == joinpath("~", "z", "MyRepo", "data", "out")
     withenv("DISTRIBUTED_REMOTE_PROJECT_ROOT" => "/Volumes/z/clone/MyRepo") do
-        @test DistSSHBase.remote_path_for_ssh_collect(
+        @test DistSSHBase.remote_layout_path(
             "/Users/z/MyRepo/data/sweep/x/ts",
             "/Users/z/MyRepo",
         ) == joinpath("/Volumes/z/clone/MyRepo", "data", "sweep", "x", "ts") |> abspath
     end
     withenv("DISTRIBUTED_REMOTE_PROJECT_ROOT" => "~/work/MyRepo") do
-        @test DistSSHBase.remote_path_for_ssh_collect(
+        @test DistSSHBase.remote_layout_path(
             "/Users/z/MyRepo/demos/with_kit",
             "/Users/z/MyRepo",
         ) == joinpath("~/work/MyRepo", "demos", "with_kit")
     end
+    @test DistSSHBase.remote_layout_path(
+        "/Users/z/other/file",
+        "/Users/z/MyRepo",
+    ) == "/Users/z/other/file"
 
     @testset "ensure_remote_abs_path" begin
         @test DistSSHBase.ensure_remote_abs_path("host", "/home/dev/App") == "/home/dev/App"

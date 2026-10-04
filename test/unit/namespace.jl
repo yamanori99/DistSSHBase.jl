@@ -22,21 +22,28 @@ using Test
         @test_throws ArgumentError DistSSHBase.cache_relpath("zz")
 
         withenv("DISTRIBUTED_OUTPUT_DIR" => nothing) do
-            @test DistSSHBase.ns_path("a.bin"; project = tmp) == joinpath(
+            @test DistSSHBase.stored_path("a.bin"; project = tmp) == joinpath(
                 DistSSHBase.canonical_local_path(tmp), "a.bin",
             )
-            @test DistSSHBase.ns_path(src; project = tmp) == DistSSHBase.canonical_local_path(src)
+            @test DistSSHBase.stored_path(src; project = tmp) == DistSSHBase.canonical_local_path(src)
         end
         out = joinpath(tmp, "slot")
         mkpath(out)
         write(joinpath(out, "a.bin"), "from slot")
         withenv("DISTRIBUTED_OUTPUT_DIR" => out) do
-            @test DistSSHBase.ns_path("a.bin"; project = tmp) == joinpath(
+            @test DistSSHBase.stored_path("a.bin"; project = tmp) == joinpath(
                 DistSSHBase.canonical_local_path(out), "a.bin",
             )
-            @test DistSSHBase.ns_path("new.csv"; project = tmp) == joinpath(
+            @test DistSSHBase.stored_path("new.csv"; project = tmp) == joinpath(
                 DistSSHBase.canonical_local_path(out), "new.csv",
             )
+            only_proj = joinpath(tmp, "only.txt")
+            write(only_proj, "proj")
+            @test DistSSHBase.stored_path("only.txt"; project = tmp) ==
+                DistSSHBase.canonical_local_path(only_proj)
+            @test DistSSHBase.stored_path(src; project = tmp) == DistSSHBase.canonical_local_path(src)
+            @test DistSSHBase.stored_path("a.bin"; project = tmp, output = joinpath(tmp, "other")) ==
+                joinpath(DistSSHBase.canonical_local_path(tmp), "a.bin")
         end
     end
 end

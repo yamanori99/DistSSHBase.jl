@@ -77,9 +77,12 @@ Julia's `expanduser`.
 `Project.toml` and the directory of the active manifest. Setup rsyncs the
 manifest directory. A job's `--project` stays the project directory.
 
-[`ns_path`](@ref) resolves a relative path under `DISTRIBUTED_OUTPUT_DIR`
-when that variable is set and the path exists there, otherwise under the
-project. [`cache_file`](@ref) stores a blob at
+[`stored_path`](@ref) resolves a relative path in this order: an existing
+file under `DISTRIBUTED_OUTPUT_DIR`, an existing file under the project,
+then the output directory for a file that does not exist yet. With no
+output directory, the path is under the project. An absolute path,
+including a leading `~`, ignores the output directory. [`cache_file`](@ref)
+stores a blob at
 `.distsshkit/cache/sha256/<digest>`. Project rsync excludes `.distsshkit/`.
 
 ## Help text
