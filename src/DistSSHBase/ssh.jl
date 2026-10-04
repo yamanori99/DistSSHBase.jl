@@ -100,9 +100,9 @@ authenticate as the local login name.
 
 # Examples
 ```jldoctest
-julia> using DistSSHRun
+julia> using DistSSHBase
 
-julia> DistSSHRun.ssh_addprocs_machine("dev@host1")
+julia> DistSSHBase.ssh_addprocs_machine("dev@host1")
 "dev@host1"
 ```
 """
@@ -119,12 +119,12 @@ Returns `nothing` if the text doesn't match the expected pattern.
 
 # Examples
 ```jldoctest
-julia> using DistSSHRun
+julia> using DistSSHBase
 
-julia> DistSSHRun.parse_julia_version("julia version 1.13.1")
+julia> DistSSHBase.parse_julia_version("julia version 1.13.1")
 v"1.13.1"
 
-julia> DistSSHRun.parse_julia_version("not julia") === nothing
+julia> DistSSHBase.parse_julia_version("not julia") === nothing
 true
 ```
 """
@@ -795,9 +795,9 @@ end
 
 # Examples
 ```jldoctest
-julia> using DistSSHRun
+julia> using DistSSHBase
 
-julia> DistSSHRun.normalize_git_clone_url("https://github.com/org/App.jl.git")
+julia> DistSSHBase.normalize_git_clone_url("https://github.com/org/App.jl.git")
 "git@github.com:org/App.jl.git"
 ```
 """

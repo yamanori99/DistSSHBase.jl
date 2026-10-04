@@ -13,18 +13,18 @@ A token `local` / `localhost` / `l` is an ordinary SSH child (`child:local`).
 
 # Examples
 ```jldoctest
-julia> using DistSSHRun
+julia> using DistSSHBase
 
-julia> DistSSHRun.is_parent_host_name("parent")
+julia> DistSSHBase.is_parent_host_name("parent")
 true
 
-julia> DistSSHRun.is_parent_host_name("parenthost")
+julia> DistSSHBase.is_parent_host_name("parenthost")
 false
 
-julia> DistSSHRun.is_parent_host_name("local")
+julia> DistSSHBase.is_parent_host_name("local")
 false
 
-julia> DistSSHRun.is_parent_host_name("worker1")
+julia> DistSSHBase.is_parent_host_name("worker1")
 false
 ```
 """
@@ -139,12 +139,12 @@ end
 
 # Examples
 ```jldoctest
-julia> using DistSSHRun
+julia> using DistSSHBase
 
-julia> DistSSHRun.looks_like_script_host("job.jl")
+julia> DistSSHBase.looks_like_script_host("job.jl")
 true
 
-julia> DistSSHRun.looks_like_script_host("host1")
+julia> DistSSHBase.looks_like_script_host("host1")
 false
 ```
 """
@@ -161,12 +161,12 @@ Rejects path-like tokens so `setup --delete demos/foo.jl` fails early.
 
 # Examples
 ```jldoctest
-julia> using DistSSHRun
+julia> using DistSSHBase
 
-julia> DistSSHRun.looks_like_path_host("demos/foo.jl")
+julia> DistSSHBase.looks_like_path_host("demos/foo.jl")
 true
 
-julia> DistSSHRun.looks_like_path_host("user@host")
+julia> DistSSHBase.looks_like_path_host("user@host")
 false
 ```
 """
