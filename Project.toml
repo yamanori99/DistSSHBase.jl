@@ -4,6 +4,9 @@ license = "MIT"
 version = "0.1.0"
 authors = ["Yamamoto, Takanori <takanori.yamamoto.99@gmail.com>", "Ampuku, Honoka <ampk.hono@gmail.com>"]
 
+[workspace]
+projects = ["test"]
+
 [deps]
 SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 

@@ -2,7 +2,7 @@
 DistSSHBase — how DistSSHKit talks to a host.
 
 Placement tokens, SSH, paths, help chrome, and where Julia and juliaup are.
-Users add DistSSHKit. This package is a local trial and is not registered.
+Users add DistSSHKit. This package is the trial cut held by DistSSHRun `chore/try-base` and is not registered.
 """
 module DistSSHBase
 
