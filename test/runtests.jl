@@ -5,7 +5,7 @@ using DistSSHBase
 
 include(joinpath(@__DIR__, "support.jl"))
 
-const _RUNTEST_N = 10
+const _RUNTEST_N = 11
 const _RUNTEST_I = Ref(0)
 function _runtest_announce(rel::AbstractString)
     _RUNTEST_I[] += 1
@@ -35,4 +35,6 @@ end
     include(joinpath(@__DIR__, "unit", "pkg_env.jl"))
     _runtest_announce("unit/remote.jl")
     include(joinpath(@__DIR__, "unit", "remote.jl"))
+    _runtest_announce("unit/surface.jl")
+    include(joinpath(@__DIR__, "unit", "surface.jl"))
 end

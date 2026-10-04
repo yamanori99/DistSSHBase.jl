@@ -22,3 +22,36 @@ jobs:
           version: "1.13"
       - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-runtest@v1
+
+  ssh-e2e:
+    name: ssh e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4
+        id: filter
+        with:
+          filters: |
+            e2e:
+              - "src/**"
+              - "test/e2e.jl"
+              - "testenv/docker-ssh/**"
+              - ".github/julia-slots.env"
+              - ".github/workflows/CI.yml"
+      - uses: julia-actions/setup-julia@v3
+        if: steps.filter.outputs.e2e == 'true'
+        with:
+          version: "1.13"
+      - uses: julia-actions/cache@v3
+        if: steps.filter.outputs.e2e == 'true'
+      - uses: julia-actions/julia-buildpkg@v1
+        if: steps.filter.outputs.e2e == 'true'
+      - name: docker-ssh up + SSH E2E
+        if: steps.filter.outputs.e2e == 'true'
+        run: ./testenv/docker-ssh/scripts/up.sh --e2e
+      - name: Teardown workers
+        if: always() && steps.filter.outputs.e2e == 'true'
+        run: ./testenv/docker-ssh/scripts/down.sh || true

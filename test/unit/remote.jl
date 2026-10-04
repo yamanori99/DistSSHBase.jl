@@ -286,4 +286,29 @@ using Test
             end
         end
     end
+
+    @testset "detect_julia_path skips Linux candidates when uname fails" begin
+        _with_tempdir() do state_dir
+            logp = joinpath(state_dir, "ssh.log")
+            fake = joinpath(@__DIR__, "..", "fixtures", "fake_ssh.jl")
+            env = Dict(
+                "DISTSSHKIT_TEST_SSH" => fake,
+                "DISTSSHKIT_TEST_UNAME_FAIL" => "1",
+                "DISTSSHKIT_TEST_JULIA_WHICH" => "/opt/custom/julia",
+                "DISTSSHKIT_TEST_SSH_LOG" => logp,
+            )
+            empty!(DistSSHBase._DETECT_JULIA_PATH_CACHE)
+            try
+                withenv(env...) do
+                    @test DistSSHBase.detect_julia_path("host1") == "/opt/custom/julia"
+                end
+                body = isfile(logp) ? read(logp, String) : ""
+                @test occursin("uname -s", body)
+                @test occursin("command -v julia", body)
+                @test !occursin("/usr/bin/julia", body)
+            finally
+                empty!(DistSSHBase._DETECT_JULIA_PATH_CACHE)
+            end
+        end
+    end
 end
