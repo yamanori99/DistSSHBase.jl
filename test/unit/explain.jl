@@ -71,25 +71,15 @@ using Test
     @testset "hosts file throws" begin
         _with_tempdir() do tmp
             missing = joinpath(tmp, "no-hosts.txt")
-            err = try
-                DistSSHBase.read_hosts_file_lines(missing; surface = :api)
-                nothing
-            catch e
-                e
-            end
-            @test err isa ArgumentError
-            @test occursin("hosts_file=", sprint(showerror, err))
+            @test_throws ["ArgumentError:", "hosts_file="] DistSSHBase.read_hosts_file_lines(
+                missing; surface = :api,
+            )
 
             empty = joinpath(tmp, "empty.txt")
             write(empty, "# only comments\n\n")
-            err2 = try
-                DistSSHBase.read_hosts_file_lines(empty; surface = :cli)
-                nothing
-            catch e
-                e
-            end
-            @test err2 isa ArgumentError
-            @test occursin("command line", sprint(showerror, err2))
+            @test_throws ["ArgumentError:", "command line"] DistSSHBase.read_hosts_file_lines(
+                empty; surface = :cli,
+            )
         end
     end
 end
