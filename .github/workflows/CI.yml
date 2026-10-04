@@ -8,7 +8,9 @@ on:
   workflow_dispatch:
 
 # Cancel redundant runs on the same branch/PR.
-# A Project.toml version increase (see version-cut.sh) forces Linux E2E.
+# A Project.toml version increase (see version-cut.sh) forces Linux E2E,
+# 1.14-nightly Pkg.test, Aqua on that nightly, and the registry-tree test.
+# Those three are continue-on-error and are not required checks.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
@@ -96,6 +98,43 @@ jobs:
           coverage: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           upload: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
+  test-tip:
+    name: Pkg.test - 1.14-nightly - ubuntu-latest
+    needs: detect
+    if: github.event_name != 'pull_request' || needs.detect.outputs.version_cut == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/julia-slot
+        with:
+          version: "1.14-nightly"
+      - uses: julia-actions/cache@v3
+        with:
+          cache-scratchspaces: false
+      - uses: ./.github/actions/pkg-test
+
+  # Not a Julia slot. Not required to merge. Catches checkout-only Pkg.test assumptions.
+  test-registry-tree:
+    name: Pkg.test - registry tree - ubuntu-latest
+    needs: detect
+    if: github.event_name != 'pull_request' || needs.detect.outputs.version_cut == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/julia-slot
+        with:
+          version: "1.14-nightly"
+      - uses: julia-actions/cache@v3
+        with:
+          cache-scratchspaces: false
+      - uses: ./.github/actions/registry-tree-test
+
   aqua:
     name: Aqua - 1.13 - ubuntu-latest
     needs: detect
@@ -113,7 +152,26 @@ jobs:
       - name: Aqua.test_all (latest Aqua)
         run: ./.github/aqua-check.sh
 
+  aqua-tip:
+    name: Aqua - 1.14-nightly - ubuntu-latest
+    needs: detect
+    if: github.event_name != 'pull_request' || needs.detect.outputs.version_cut == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/julia-slot
+        with:
+          version: "1.14-nightly"
+      - uses: julia-actions/cache@v3
+        with:
+          cache-scratchspaces: false
+      - name: Aqua.test_all (latest Aqua)
+        run: ./.github/aqua-check.sh
+
   # Literal name: a skipped job must still be this string.
+  # 1.13 only. Add another job when JETLS does not list that version.
   jetls:
     name: JETLS - 1.13 - ubuntu-latest
     needs: detect

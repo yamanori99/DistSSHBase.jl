@@ -39,6 +39,10 @@ The `main` ruleset asks for these checks:
 
 Runic is not required. Once a month on `main` it opens `Runic monthly failed` if `--check` is red. Codecov uploads from `Pkg.test` on a push to `main` only, and the status is informational.
 
+`Pkg.test - 1.14-nightly`, `Aqua - 1.14-nightly`, and `Pkg.test - registry tree` run on a push, a manual run, or a version increase. They continue on error and are not required. JETLS stays on 1.13.
+
+Sunday 10:00 JST, CI weekly repeats the 1.13 checks and those nightly jobs. A failure of a 1.13 job opens `CI weekly failed`. Nightly failures do not. That run also drops old Actions caches.
+
 Sunday 04:00 JST, a manual run, or a version increase on `main` builds the worker image and runs the suite on `macos-15-intel` with Colima (`macos-15-intel → ubuntu-24.04`). That job is not required. On `main` it also publishes `distsshbase-linux-ssh-worker:latest`.
 
 The Julia floor is the `1.13` line in `.github/julia-slots.env`. When it moves, rename the jobs and the ruleset in the same PR.
