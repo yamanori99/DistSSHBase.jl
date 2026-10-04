@@ -5,7 +5,7 @@ using DistSSHBase
 
 include(joinpath(@__DIR__, "support.jl"))
 
-const _RUNTEST_N = 9
+const _RUNTEST_N = 10
 const _RUNTEST_I = Ref(0)
 function _runtest_announce(rel::AbstractString)
     _RUNTEST_I[] += 1
@@ -15,6 +15,8 @@ function _runtest_announce(rel::AbstractString)
 end
 
 @testset "DistSSHBase" verbose = true begin
+    _runtest_announce("unit/cli_entry.jl")
+    include(joinpath(@__DIR__, "unit", "cli_entry.jl"))
     _runtest_announce("unit/argv.jl")
     include(joinpath(@__DIR__, "unit", "argv.jl"))
     _runtest_announce("unit/explain.jl")
