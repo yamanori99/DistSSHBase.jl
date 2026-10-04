@@ -27,11 +27,11 @@ print_help_title(msg; io = stdout) = _print_colored(io, msg, :cyan, true)
 """
 Kit help chrome — every overview / `--help` starts here:
 
-    DistSSHRun drive
-    ────────────────
+    DistSSHQueue setup
+    ──────────────────
 
-Exported for DistSSHQueue-style callers; signature is stable, exact
-glyphs / colors are not (see API · CLI parsers and helpers).
+Exported for family callers. The signature is stable. Glyphs and colors
+are not.
 """
 function print_help_chrome(title::AbstractString; io::IO = stdout)
     t = String(title)

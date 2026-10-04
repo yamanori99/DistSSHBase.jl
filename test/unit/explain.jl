@@ -54,7 +54,12 @@ using Test
         ssh = DistSSHBase.explain_host_tool_missing("ssh")
         @test occursin("ssh not found in PATH", ssh)
         @test occursin("OpenSSH", ssh)
+        @test occursin("DistSSHKit", ssh)
         @test occursin("Requirements", ssh)
+        DistSSHBase.with_cli_entry(:DistSSHQueue) do
+            queued = DistSSHBase.explain_host_tool_missing("ssh")
+            @test occursin("DistSSHQueue", queued)
+        end
         @test DistSSHBase.explain_host_tool_missing("ssh"; surface = :cli) ==
             DistSSHBase.explain_host_tool_missing("ssh"; surface = :api)
         @test occursin("scp not found", DistSSHBase.explain_host_tool_missing("scp"))
