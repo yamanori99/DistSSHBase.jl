@@ -230,56 +230,13 @@ using Test
         )
         @test_throws ArgumentError DistSSHBase.run_on_host("", ["--version"])
         withenv("PATH" => "/nonexistent-distsshkit-path") do
-            @test occursin(
-                "ssh not found in PATH",
-                try
-                    DistSSHBase.run_on_host("no-such-host.invalid", ["--version"])
-                    ""
-                catch e
-                    @test e isa ArgumentError
-                    sprint(showerror, e)
-                end,
+            @test_throws "ssh not found in PATH" DistSSHBase.run_on_host(
+                "no-such-host.invalid", ["--version"],
             )
-            @test occursin(
-                "OpenSSH", sprint(
-                    showerror, try
-                        DistSSHBase._host_tool_exe("ssh")
-                        error("expected")
-                    catch e
-                        e
-                    end
-                )
-            )
-            @test occursin(
-                "rsync not found", sprint(
-                    showerror, try
-                        DistSSHBase._host_tool_exe("rsync")
-                        error("expected")
-                    catch e
-                        e
-                    end
-                )
-            )
-            @test occursin(
-                "git not found", sprint(
-                    showerror, try
-                        DistSSHBase._host_tool_exe("git")
-                        error("expected")
-                    catch e
-                        e
-                    end
-                )
-            )
-            @test occursin(
-                "scp not found", sprint(
-                    showerror, try
-                        DistSSHBase._host_tool_exe("scp")
-                        error("expected")
-                    catch e
-                        e
-                    end
-                )
-            )
+            @test_throws "OpenSSH" DistSSHBase._host_tool_exe("ssh")
+            @test_throws "rsync not found" DistSSHBase._host_tool_exe("rsync")
+            @test_throws "git not found" DistSSHBase._host_tool_exe("git")
+            @test_throws "scp not found" DistSSHBase._host_tool_exe("scp")
         end
         if Sys.which("ssh") !== nothing
             let p = redirect_stderr(devnull) do
