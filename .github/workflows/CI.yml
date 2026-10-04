@@ -8,14 +8,15 @@ on:
   workflow_dispatch:
 
 # Cancel redundant runs on the same branch/PR.
-# A Project.toml version increase (see version-cut.sh) forces Linux E2E.
+# A Project.toml version increase (see version-cut.sh) forces Linux E2E,
+# 1.14-nightly Pkg.test, Aqua on that nightly, and the registry-tree test.
+# Those three are continue-on-error and are not required checks.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 
 permissions:
   contents: read
-  actions: write # julia-actions/cache delete-old-caches
 
 jobs:
   # Full `Pkg.test()` stays Linux-only. The macOS kit parent is `E2E weekly`.
@@ -82,7 +83,6 @@ jobs:
     permissions:
       contents: read
       id-token: write # Codecov OIDC on main push
-      actions: write
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/julia-slot
@@ -91,10 +91,50 @@ jobs:
       - uses: julia-actions/cache@v3
         with:
           cache-scratchspaces: false
+          delete-old-caches: false
       - uses: ./.github/actions/pkg-test
         with:
           coverage: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           upload: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+  test-tip:
+    name: Pkg.test - 1.14-nightly - ubuntu-latest
+    needs: detect
+    if: github.event_name != 'pull_request' || needs.detect.outputs.version_cut == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/julia-slot
+        with:
+          version: "1.14-nightly"
+      - uses: julia-actions/cache@v3
+        with:
+          cache-scratchspaces: false
+          delete-old-caches: false
+      - uses: ./.github/actions/pkg-test
+
+  # Not a Julia slot. Not required to merge. Catches checkout-only Pkg.test assumptions.
+  test-registry-tree:
+    name: Pkg.test - registry tree - ubuntu-latest
+    needs: detect
+    if: github.event_name != 'pull_request' || needs.detect.outputs.version_cut == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/julia-slot
+        with:
+          version: "1.14-nightly"
+      - uses: julia-actions/cache@v3
+        with:
+          cache-scratchspaces: false
+          delete-old-caches: false
+      - uses: ./.github/actions/registry-tree-test
 
   aqua:
     name: Aqua - 1.13 - ubuntu-latest
@@ -110,10 +150,31 @@ jobs:
       - uses: julia-actions/cache@v3
         with:
           cache-scratchspaces: false
+          delete-old-caches: false
+      - name: Aqua.test_all (latest Aqua)
+        run: ./.github/aqua-check.sh
+
+  aqua-tip:
+    name: Aqua - 1.14-nightly - ubuntu-latest
+    needs: detect
+    if: github.event_name != 'pull_request' || needs.detect.outputs.version_cut == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/julia-slot
+        with:
+          version: "1.14-nightly"
+      - uses: julia-actions/cache@v3
+        with:
+          cache-scratchspaces: false
+          delete-old-caches: false
       - name: Aqua.test_all (latest Aqua)
         run: ./.github/aqua-check.sh
 
   # Literal name: a skipped job must still be this string.
+  # 1.13 only. Add another job when JETLS does not list that version.
   jetls:
     name: JETLS - 1.13 - ubuntu-latest
     needs: detect
@@ -130,6 +191,7 @@ jobs:
       - uses: julia-actions/cache@v3
         with:
           cache-scratchspaces: false
+          delete-old-caches: false
       - uses: ./.github/actions/jetls-check
         with:
           files: ${{ steps.files.outputs.list }}
@@ -142,7 +204,6 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-      actions: write
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/julia-slot
@@ -154,6 +215,7 @@ jobs:
       - uses: julia-actions/cache@v3
         with:
           cache-scratchspaces: false
+          delete-old-caches: false
       - uses: julia-actions/julia-buildpkg@v1
       - name: docker-ssh up + SSH E2E
         run: ./testenv/docker-ssh/scripts/up.sh --e2e
