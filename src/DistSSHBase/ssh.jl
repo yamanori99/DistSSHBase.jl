@@ -472,7 +472,7 @@ end
 Map `local_abs` under `local_repo_root` to an absolute path on `host`.
 
 For `parent`, returns the canonical local path. For SSH hosts, uses
-[`remote_path_for_ssh_collect`](@ref) then [`resolve_remote_abs_path_on_host`](@ref).
+[`remote_layout_path`](@ref) then [`resolve_remote_abs_path_on_host`](@ref).
 Returns `nothing` when the remote path cannot be resolved.
 """
 function resolve_host_path_abs(
@@ -483,7 +483,7 @@ function resolve_host_path_abs(
     path_local = canonical_local_path(local_abs)
     h = String(strip(host))
     is_parent_host_name(h) && return path_local
-    mapped = remote_path_for_ssh_collect(path_local, local_repo_root)
+    mapped = remote_layout_path(path_local, local_repo_root)
     return resolve_remote_abs_path_on_host(h, mapped)
 end
 
@@ -842,20 +842,21 @@ function _join_under_remote_root(rroot::String, rel::String)::String
 end
 
 """
-Absolute path to use on SSH worker hosts for `find` / rsync source / sentinel / `addprocs`.
+    remote_layout_path(local_abs_dir, local_application_repo_root) -> String
 
-Maps `local_abs_dir` under `local_application_repo_root` to the same relative path under the
-remote repo root from [`resolve_remote_project_root`](@ref) (same default as `setup --clone`:
-`~/Parent/RepoName`). Override with `DISTRIBUTED_REMOTE_PROJECT_ROOT` or `setup --remote-path`.
+Layout path, not a path resolved on the host. It may start with `~`.
+Do not `expanduser` it on this machine. Pass it through
+[`ensure_remote_abs_path`](@ref) before using it on a host.
 
-Paths outside the local repo root fall back to `local_abs_dir` unchanged.
+A path outside `local_application_repo_root` is returned unchanged.
+That result is the local absolute path, not a remote path.
 
-Returns a **layout** path (may still start with `~`). Callers that build find lists,
-rsync URIs, or `relpath` on the kit parent must pass the result through
-[`ensure_remote_abs_path`](@ref) per host first. Prefer an absolute
-`DISTRIBUTED_REMOTE_PROJECT_ROOT` when possible; `~` is sugar for remote shells.
+A path under the repo root is the same relative path under
+[`resolve_remote_project_root`](@ref). The default root matches
+`setup --clone` (`~/Parent/RepoName`). Override with
+`DISTRIBUTED_REMOTE_PROJECT_ROOT` or `setup --remote-path`.
 """
-function remote_path_for_ssh_collect(
+function remote_layout_path(
         local_abs_dir::AbstractString,
         local_application_repo_root::AbstractString,
     )::String

@@ -52,11 +52,10 @@ end
 Walk upward from `start_dir` to find the directory that should be passed to
 `Pkg.activate` on workers.
 
-If the first `Project.toml` found is the **vendored stub** (its `name` is
-`DistSSHRun`, matching this kit’s own `Project.toml`) and the parent
-directory also has a `Project.toml`, skip it and keep walking so scripts
-co-located with the kit inherit the application project root (regardless of
-the kit folder’s basename).
+If the first `Project.toml` found is a vendored DistSSHRun stub (`name` is
+`DistSSHRun`) and the parent directory also has a `Project.toml`, skip it
+and keep walking. Scripts next to that stub then use the application
+project root. The folder name does not matter.
 """
 function resolve_pkg_project_dir(start_dir::AbstractString)::String
     test_dir = abspath(String(start_dir))
