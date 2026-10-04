@@ -22,7 +22,7 @@ function cli_qhost()::String
     return cli_entry() === :DistSSHKit ? "qhost " : ""
 end
 
-"""Help title: `DistSSHRun up`."""
+"""Help title: `DistSSHQueue setup`."""
 cli_heading(rest::AbstractString)::String = "$(cli_entry()) $(rest)"
 
 """Help title for a queue-host command. Kit keeps the `qhost` word."""

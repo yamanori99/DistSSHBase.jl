@@ -12,9 +12,11 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 <!-- markdownlint-enable MD013 -->
 
-How a DistSSHKit family package names a host, reaches it over SSH, and prints help.
+How a DistSSHKit family package names a host, reaches it over SSH,
+and prints help.
 
-A family package depends on DistSSHBase and calls `with_cli_entry` from `main`. Users add [DistSSHKit](https://github.com/yamanori99/DistSSHKit.jl).
+A family package depends on DistSSHBase and calls `with_cli_entry` from
+`main`. Users add [DistSSHKit](https://github.com/yamanori99/DistSSHKit.jl).
 
 ## Install
 
@@ -22,7 +24,7 @@ A family package depends on DistSSHBase and calls `with_cli_entry` from `main`. 
 pkg> add DistSSHBase
 ```
 
-Julia **1.13+**. The host needs **`ssh`**. **`rsync`** and **`git`** are required only for the kit commands that call them.
+Julia **1.13+**. The host needs **`ssh`**.
 
 ## Documentation
 

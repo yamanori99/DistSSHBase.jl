@@ -143,11 +143,12 @@ end
 function explain_host_tool_hint(tool::AbstractString; surface::Symbol = :api)::String
     _normalize_hint_surface(surface)
     t = _normalize_host_tool(tool)
-    t == "ssh" && return "Hint: DistSSHRun does not install OpenSSH; see Requirements"
-    t == "scp" && return "Hint: DistSSHRun does not install OpenSSH (scp); see Requirements"
+    pkg = cli_entry()
+    t == "ssh" && return "Hint: $pkg does not install OpenSSH; see Requirements"
+    t == "scp" && return "Hint: $pkg does not install OpenSSH (scp); see Requirements"
     t == "rsync" &&
-        return "Hint: DistSSHRun does not install rsync; needed for collect and setup --rsync (see Requirements)"
-    return "Hint: DistSSHRun does not install git; needed for clone / push / pull (see Requirements)"
+        return "Hint: $pkg does not install rsync; needed for collect and setup --rsync (see Requirements)"
+    return "Hint: $pkg does not install git; needed for clone / push / pull (see Requirements)"
 end
 
 """Full message when a required host tool is not on `PATH`."""

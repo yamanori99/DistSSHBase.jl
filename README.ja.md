@@ -14,7 +14,8 @@
 
 DistSSHKit ファミリーのパッケージが、ホストの名前、SSH、help を共有するためのライブラリである。
 
-ファミリーのパッケージは DistSSHBase に依存し、`main` から `with_cli_entry` を呼ぶ。利用者は [DistSSHKit](https://github.com/yamanori99/DistSSHKit.jl) を足す。
+ファミリーのパッケージは DistSSHBase に依存し、`main` から `with_cli_entry` を呼ぶ。
+利用者は [DistSSHKit](https://github.com/yamanori99/DistSSHKit.jl) を足す。
 
 ## インストール
 
@@ -22,7 +23,7 @@ DistSSHKit ファミリーのパッケージが、ホストの名前、SSH、hel
 pkg> add DistSSHBase
 ```
 
-Julia **1.13+**。ホストには **`ssh`** が要る。**`rsync`** と **`git`** は、それらを呼ぶキットのコマンドにだけ要る。
+Julia **1.13+**。ホストには **`ssh`** が要る。
 
 ## ドキュメント
 
