@@ -88,6 +88,11 @@ jobs:
           DISTSSHKIT_PUSH_IMAGE: ghcr.io/${{ github.repository_owner }}/distsshbase-linux-ssh-worker:${{ github.sha }}
           DISTSSHKIT_SKIP_UP: "1"
         run: ./testenv/docker-ssh/scripts/up.sh
+      - name: Publish latest image tag
+        if: github.ref == 'refs/heads/main'
+        env:
+          DISTSSHKIT_LOCAL_IMAGE: local/linux-ssh-worker:latest
+        run: ./testenv/docker-ssh/scripts/push-image.sh "ghcr.io/${{ github.repository_owner }}/distsshbase-linux-ssh-worker:latest"
       - name: Teardown workers
         if: always()
         run: ./testenv/docker-ssh/scripts/down.sh || true
