@@ -19,7 +19,7 @@ join_explained_message(headline::AbstractString, ::Nothing)::String = string(hea
 join_explained_message(headline::AbstractString, hint::AbstractString)::String =
     string(headline, '\n', hint)
 
-"""Missing `DRIVER=` / `driver=` for [`pipeline_config_from_env`](@ref)."""
+"""Missing `DRIVER=` / `driver=` for `pipeline_config_from_env`."""
 function explain_pipeline_driver_missing(; surface::Symbol = :api)::String
     surface = _normalize_hint_surface(surface)
     if surface === :cli

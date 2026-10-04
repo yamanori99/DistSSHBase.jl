@@ -1,0 +1,127 @@
+name: E2E weekly
+
+# Not on pull_request. macOS Intel is a watcher, not a required check.
+# Push to main with a version increase runs this matrix on that SHA.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - Project.toml
+  workflow_dispatch:
+  # Sunday 04:00 JST (Saturday 19:00 UTC).
+  schedule:
+    - cron: "0 19 * * 6"
+
+concurrency:
+  group: ssh-e2e-weekly-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write # julia-actions/cache delete-old-caches
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: gate
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - id: decide
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" != "push" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          zeros="$(printf '0%.0s' {1..40})"
+          if [ -z "${BEFORE:-}" ] || [ "$BEFORE" = "$zeros" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git init -q
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "$BEFORE"
+          git fetch --depth=1 origin "$GITHUB_SHA"
+          old="$(git cat-file -p "${BEFORE}:Project.toml" | grep -E '^version[[:space:]]*=' | head -1 || true)"
+          new="$(git cat-file -p "${GITHUB_SHA}:Project.toml" | grep -E '^version[[:space:]]*=' | head -1 || true)"
+          parse() {
+            echo "$1" | sed -n 's/^version[[:space:]]*=[[:space:]]*"\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1 \2 \3/p'
+          }
+          read -r om oi op <<<"$(parse "$old")"
+          read -r nm ni np <<<"$(parse "$new")"
+          cut=false
+          if [ -n "${om:-}" ] && [ -n "${nm:-}" ]; then
+            if [ "$nm" -gt "$om" ] || { [ "$nm" -eq "$om" ] && [ "$ni" -gt "$oi" ]; } || { [ "$nm" -eq "$om" ] && [ "$ni" -eq "$oi" ] && [ "$np" -gt "$op" ]; }; then
+              cut=true
+            fi
+          fi
+          echo "version ${old:-?} → ${new:-?} cut=${cut}"
+          if [ "$cut" = true ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  linux-image:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    name: ubuntu-latest (image)
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Log in to GHCR
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+      - name: docker-ssh build + push
+        env:
+          DISTSSHKIT_PUSH_IMAGE: ghcr.io/${{ github.repository_owner }}/distsshbase-linux-ssh-worker:${{ github.sha }}
+          DISTSSHKIT_SKIP_UP: "1"
+        run: ./testenv/docker-ssh/scripts/up.sh
+      - name: Teardown workers
+        if: always()
+        run: ./testenv/docker-ssh/scripts/down.sh || true
+
+  macos-e2e:
+    needs: linux-image
+    runs-on: macos-15-intel
+    timeout-minutes: 60
+    name: macos-15-intel → ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/julia-slot
+        with:
+          version: "1.13"
+      - uses: julia-actions/cache@v3
+        with:
+          cache-scratchspaces: false
+      - uses: julia-actions/julia-buildpkg@v1
+      - name: Colima
+        run: ./testenv/docker-ssh/scripts/setup-colima-ci.sh
+      - name: Log in to GHCR
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+      - name: docker-ssh up + SSH E2E
+        env:
+          DISTSSHKIT_WORKER_IMAGE: ghcr.io/${{ github.repository_owner }}/distsshbase-linux-ssh-worker:${{ github.sha }}
+          DISTSSHKIT_WORKER_PULL_RETRIES: "8"
+        run: ./testenv/docker-ssh/scripts/up.sh --e2e
+      - name: Teardown workers
+        if: always()
+        run: ./testenv/docker-ssh/scripts/down.sh || true

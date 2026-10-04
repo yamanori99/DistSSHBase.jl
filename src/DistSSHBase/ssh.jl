@@ -604,7 +604,7 @@ involves a remote path. Already-absolute paths (`/` prefix) are returned
 unchanged. Paths starting with `~` are resolved **on the remote** via
 [`resolve_remote_abs_path_on_host`](@ref). Returns `nothing` when resolution fails.
 
-`~` may still be passed unquoted to remote shells ([`_remote_shell_path_word`](@ref));
+`~` may still be passed unquoted to remote shells (`_remote_shell_path_word`);
 do not feed tilde strings into Julia's `expanduser` / `relpath` / `abspath`.
 """
 function ensure_remote_abs_path(
@@ -761,7 +761,7 @@ function _remote_ancestor(remote_path::AbstractString, rel::AbstractString)::Str
     return mapped
 end
 
-"""[`_remote_ancestor`](@ref), or `nothing` when `remote_path` does not end with `rel`."""
+"""`_remote_ancestor`, or `nothing` when `remote_path` does not end with `rel`."""
 function _remote_ancestor_or_nothing(
         remote_path::AbstractString,
         rel::AbstractString,

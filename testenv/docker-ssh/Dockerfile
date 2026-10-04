@@ -2,9 +2,9 @@ FROM ubuntu:24.04
 
 # GHCR package page (description / source / license):
 # https://docs.github.com/packages/working-with-a-github-packages-registry/working-with-the-container-registry
-LABEL org.opencontainers.image.source="https://github.com/yamanori99/DistSSHRun.jl"
-LABEL org.opencontainers.image.documentation="https://github.com/yamanori99/DistSSHRun.jl/blob/main/testenv/docker-ssh/README.md"
-LABEL org.opencontainers.image.description="Linux SSH worker for DistSSHRun E2E (sshd, rsync, git, Julia via juliaup). Not the DistSSHRun runtime."
+LABEL org.opencontainers.image.source="https://github.com/yamanori99/DistSSHBase.jl"
+LABEL org.opencontainers.image.documentation="https://github.com/yamanori99/DistSSHBase.jl/blob/main/testenv/docker-ssh/README.md"
+LABEL org.opencontainers.image.description="Linux SSH worker for DistSSHBase E2E (sshd, rsync, git, Julia via juliaup). Not the DistSSHBase runtime."
 LABEL org.opencontainers.image.licenses="MIT"
 
 ENV DEBIAN_FRONTEND=noninteractive

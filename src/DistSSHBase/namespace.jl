@@ -32,7 +32,7 @@ end
 Copy `src` into `.distsshkit/cache/sha256/<digest>` if that blob is missing
 or stale. Same contents share one file (no second copy). Returns the cache
 path. Does not rsync by itself; `.distsshkit/` is excluded from project
-sync. Use [`push_cache!`](@ref) to copy blobs to SSH hosts.
+sync. Use `push_cache!` to copy blobs to SSH hosts.
 """
 function cache_file(src::AbstractString; project::AbstractString = pwd())::String
     srcp = canonical_local_path(src)

@@ -30,7 +30,7 @@ end
     host_tokens(hosts::AbstractVector{Tuple{String,Union{Int,Nothing}}}; parent_workers=0)
     host_tokens(parsed; kind::Symbol) -> Vector{String}
 
-Rebuild CLI host tokens for [`execute!`](@ref).
+Rebuild CLI host tokens for `execute!`.
 
 Go tokens are the parser strings. Ride uses the same shape. Drive tuples plus
 `parent_workers` emit `parent:N` then `child:NAME:N`. `kind` must be `:go`,

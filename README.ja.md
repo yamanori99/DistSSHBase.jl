@@ -12,18 +12,18 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 <!-- markdownlint-enable MD013 -->
 
-How a DistSSHKit family package names a host, reaches it over SSH, and prints help.
+DistSSHKit ファミリーのパッケージが、ホストの名前、SSH、help を共有するためのライブラリである。
 
-A family package depends on DistSSHBase and calls `with_cli_entry` from `main`. Users add [DistSSHKit](https://github.com/yamanori99/DistSSHKit.jl).
+ファミリーのパッケージは DistSSHBase に依存し、`main` から `with_cli_entry` を呼ぶ。利用者は [DistSSHKit](https://github.com/yamanori99/DistSSHKit.jl) を足す。
 
-## Install
+## インストール
 
 ```julia
 pkg> add DistSSHBase
 ```
 
-Julia **1.13+**. The host needs **`ssh`**. **`rsync`** and **`git`** are required only for the kit commands that call them.
+Julia **1.13+**。ホストには **`ssh`** が要る。**`rsync`** と **`git`** は、それらを呼ぶキットのコマンドにだけ要る。
 
-## Documentation
+## ドキュメント
 
 <https://yamanori99.github.io/DistSSHBase.jl/stable/>
