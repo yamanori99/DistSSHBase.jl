@@ -23,6 +23,7 @@ jobs:
   # PRs run `ubuntu-latest → ubuntu-24.04` in this workflow.
   # One detect job; markdown-only / allowlisted PRs skip heavy jobs (UI: skipping).
   # Codecov (flag pkgtest): main push only — not on pull_request.
+  # Codecov (flag e2e): version-increase PR E2E only — not ordinary PR E2E.
   # cache-scratchspaces: false — registry_updates.toml in scratchspaces can
   # poison Pkg.Registry.update on 1.13 if restored corrupt.
   # Aqua / JETLS share this workflow so the Test badge is the PR gate.
@@ -40,6 +41,7 @@ jobs:
       heavy: ${{ steps.heavy.outputs.heavy }}
       version_cut: ${{ steps.heavy.outputs.version_cut }}
       e2e: ${{ steps.gate.outputs.e2e }}
+      coverage: ${{ steps.gate.outputs.coverage }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -72,6 +74,11 @@ jobs:
             echo "e2e=${FILTER_E2E}" >> "$GITHUB_OUTPUT"
           else
             echo "e2e=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "$CUT" = "true" ]; then
+            echo "coverage=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "coverage=false" >> "$GITHUB_OUTPUT"
           fi
 
   test:
@@ -204,6 +211,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      id-token: write # Codecov OIDC when a version-increase PR runs E2E coverage
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/julia-slot
@@ -218,7 +226,12 @@ jobs:
           delete-old-caches: false
       - uses: julia-actions/julia-buildpkg@v1
       - name: docker-ssh up + SSH E2E
+        id: e2e
+        env:
+          DISTSSHKIT_CODE_COVERAGE: ${{ needs.detect.outputs.coverage == 'true' && '1' || '' }}
         run: ./testenv/docker-ssh/scripts/up.sh --e2e
+      - uses: ./.github/actions/e2e-codecov
+        if: ${{ always() && steps.e2e.outcome == 'success' && needs.detect.outputs.coverage == 'true' }}
       - name: Teardown workers
         if: ${{ always() }}
         run: ./testenv/docker-ssh/scripts/down.sh || true
