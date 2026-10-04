@@ -230,13 +230,13 @@ using Test
         )
         @test_throws ArgumentError DistSSHBase.run_on_host("", ["--version"])
         withenv("PATH" => "/nonexistent-distsshkit-path") do
-            @test_throws ArgumentError "ssh not found in PATH" DistSSHBase.run_on_host(
+            @test_throws ["ArgumentError:", "ssh not found in PATH"] DistSSHBase.run_on_host(
                 "no-such-host.invalid", ["--version"],
             )
-            @test_throws ArgumentError "OpenSSH" DistSSHBase._host_tool_exe("ssh")
-            @test_throws ArgumentError "rsync not found" DistSSHBase._host_tool_exe("rsync")
-            @test_throws ArgumentError "git not found" DistSSHBase._host_tool_exe("git")
-            @test_throws ArgumentError "scp not found" DistSSHBase._host_tool_exe("scp")
+            @test_throws ["ArgumentError:", "OpenSSH"] DistSSHBase._host_tool_exe("ssh")
+            @test_throws ["ArgumentError:", "rsync not found"] DistSSHBase._host_tool_exe("rsync")
+            @test_throws ["ArgumentError:", "git not found"] DistSSHBase._host_tool_exe("git")
+            @test_throws ["ArgumentError:", "scp not found"] DistSSHBase._host_tool_exe("scp")
         end
         if Sys.which("ssh") !== nothing
             let p = redirect_stderr(devnull) do
