@@ -19,7 +19,6 @@ concurrency:
 
 permissions:
   contents: read
-  actions: write # julia-actions/cache delete-old-caches
 
 jobs:
   gate:
@@ -105,7 +104,6 @@ jobs:
     permissions:
       contents: read
       packages: read
-      actions: write
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/julia-slot
@@ -114,6 +112,7 @@ jobs:
       - uses: julia-actions/cache@v3
         with:
           cache-scratchspaces: false
+          delete-old-caches: false
       - uses: julia-actions/julia-buildpkg@v1
       - name: Colima
         run: ./testenv/docker-ssh/scripts/setup-colima-ci.sh
