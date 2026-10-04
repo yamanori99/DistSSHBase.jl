@@ -2,9 +2,8 @@
 DistSSHBase — how a DistSSHKit family package talks to a host.
 
 Placement tokens, SSH, paths, help chrome, the `julia -m` entry, and where Julia is.
-A new package depends on DistSSHBase, calls `with_cli_entry` in `main`, and uses these names instead of copying them.
-Users add DistSSHKit. This package is the trial cut held by DistSSHRun `trial/base-up` and is not registered.
-The first registry version stays 0.1.0 until the public names settle.
+A new package depends on DistSSHBase, calls [`with_cli_entry`](@ref) in `main`, and uses these names instead of copying them.
+Users add DistSSHKit.
 """
 module DistSSHBase
 

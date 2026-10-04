@@ -124,7 +124,7 @@ function _path_is_under(path::AbstractString, root::AbstractString)::Bool
     return startswith(p, r * Base.Filesystem.path_separator)
 end
 
-"""Like [`_path_is_under`](@ref) after `realpath`, so `/var` and `/private/var` match."""
+"""Like `_path_is_under` after `realpath`, so `/var` and `/private/var` match."""
 function _path_under_resolved(path::AbstractString, root::AbstractString)::Bool
     _path_is_under(path, root) && return true
     p = canonical_local_path(path)

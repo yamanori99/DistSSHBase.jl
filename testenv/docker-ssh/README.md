@@ -9,12 +9,10 @@ Real OpenSSH + rsync Linux workers. CI remote SSH coverage uses this stack
 
 ## Coverage matrix
 
-- Linux (`ubuntu-latest`), workers `ubuntu:24.04` ×2: **CI** — main /
-  a version-cut PR (`E2E`) and weekly (`E2E weekly / ubuntu-latest → ubuntu-24.04`)
+- Linux (`ubuntu-latest`), workers `ubuntu:24.04` ×2: **CI** —
+  `ubuntu-latest → ubuntu-24.04` (path filter, a version-cut PR, dispatch)
 - macOS Intel (`macos-15-intel` + Colima), same image: **E2E weekly** —
-  `E2E weekly / macos-15-intel → ubuntu-24.04`
-- WSL2 (`windows-latest`), same image: **E2E weekly** —
-  `E2E weekly / windows-latest (WSL2) → ubuntu-24.04`
+  `macos-15-intel → ubuntu-24.04`
 - Either kit parent, `parent:N`: mixed smoke inside the same suite
 
 Suite inventory: [`test/README.md`](../../test/README.md#ssh-e2e).
@@ -97,7 +95,7 @@ build locally instead (omit `DISTSSHKIT_WORKER_IMAGE`).
 
 ```bash
 export DISTSSHKIT_WORKER_IMAGE=ghcr.io/yamanori99/\
-distsshrun-linux-ssh-worker:latest
+distsshbase-linux-ssh-worker:latest
 ./scripts/up.sh --e2e
 ```
 
@@ -120,26 +118,16 @@ ssh -F .generated/ssh_config child-1 'echo ok; julia --version'
 paths), a PR whose `Project.toml` `version` went up, and manual dispatch
 (`ubuntu-latest → ubuntu-24.04`). Other PRs run it only when those paths
 change.
-[`.github/workflows/ssh-e2e-weekly.yml`][e2e-weekly]
+[`.github/workflows/ssh-e2e-weekly.yml`](../../.github/workflows/ssh-e2e-weekly.yml)
 (`E2E weekly`) runs Sunday 04:00 JST, via Run workflow, or on a version
-squash to `main` (`Project.toml` version up): bake
-`ubuntu-latest (image)` to GHCR, then `ubuntu-latest`, `macos-15-intel`, and
-`windows-latest (WSL2)` pull that tag and run the suite. Weekly Linux is the
-same suite as a version-cut PR / **main** Linux E2E, not a PR check.
-Register from the version-cut PR's Linux E2E. Weekly Intel / WSL are
-watchers (`cut-hold` only if weekly Linux is red).
+increase pushed to `main`: bake `ubuntu-latest (image)` to GHCR, then
+`macos-15-intel` pulls that tag and runs the suite. Intel is a watcher, not a
+PR check. Register from the version-cut PR's Linux E2E.
 
-Those kit parent jobs wait for `ubuntu-latest (image)` then pull
-`ghcr.io/<owner>/distsshrun-linux-ssh-worker:<sha>` instead of building
-Julia-in-Docker on Colima / WSL `dockerd`. Push to GHCR is retried until the
-tag is inspectable (GHCR `unknown blob`). After the weekly Linux suite,
-`:latest`
-is pushed for
-local pull. The package is meant to be **public** (one-time: package Settings →
-Change visibility). Local `./scripts/up.sh` still builds unless you set
+The Mac job waits for `ubuntu-latest (image)` then pulls
+`ghcr.io/<owner>/distsshbase-linux-ssh-worker:<sha>` instead of building
+Julia-in-Docker on Colima. Local `./scripts/up.sh` still builds unless you set
 `DISTSSHKIT_WORKER_IMAGE`. Colima on Intel runners uses `--cpu 3 --memory 8`
 so the Darwin kit parent keeps RAM.
 
 Usual `Pkg.test()` does **not** start Docker and does **not** run this suite.
-
-[e2e-weekly]: ../../.github/workflows/ssh-e2e-weekly.yml

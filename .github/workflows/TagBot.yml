@@ -1,6 +1,5 @@
 # TagBot creates `vX.Y.Z` tags after General-registry releases (JuliaTagBot /
-# workflow_dispatch). This package has no Documenter site, so there is no
-# deploy key.
+# workflow_dispatch). Docs deploy with `GITHUB_TOKEN`, so there is no deploy key.
 #
 # Do not set `permissions:` here (TagBot troubleshooting: use repo defaults).
 name: TagBot
