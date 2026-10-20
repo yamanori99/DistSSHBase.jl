@@ -5,6 +5,10 @@
 #   ./.github/wsl-julia.sh <juliaup-channel> <command...>
 set -euo pipefail
 
+if [[ "$(id -u)" -eq 0 ]]; then
+  bash "$(cd "$(dirname "$0")" && pwd)/wsl-apt.sh" ca-certificates curl git
+fi
+
 channel="$1"
 shift
 
