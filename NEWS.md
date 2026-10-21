@@ -6,6 +6,8 @@ GitHub Releases may copy these sections (`Release notes:` on
 
 ## Unreleased
 
+- `parse_julia_version_full` and `get_remote_julia_version_full` keep the prerelease and the build. `parse_julia_version` and `get_remote_julia_version` stay major.minor.patch.
+
 ## 0.1.0
 
 First release. Julia **1.13+**.

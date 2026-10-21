@@ -13,6 +13,8 @@
             :canonical_local_path,
             :ssh_opts,
             :is_parent_host_name,
+            :parse_julia_version_full,
+            :get_remote_julia_version_full,
         )
         @test n in pubs
     end
